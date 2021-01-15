@@ -15,6 +15,7 @@ More Details 補充說明
 Reference 目錄裡, 有 學府文教機構 貼出來的圖片, 我照著量出字的長寬。
 https://www.facebook.com/HSUEHFU.MPM/posts/2156578184397265/
 
+![PrintScreen](PrintScreen.png)
 
 Code Explain 程式碼說明
 -----------------------
