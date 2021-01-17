@@ -7,6 +7,7 @@ String text2="     Animals live in every part of the earth.  They live in the ai
            + "water, and on the land.  They can move from one place to another.  A\r\n"
            + "cow, a bird, a fish, a sheep, and a snake are all animals.  Butterflies,\r\n"
            + "eagles, elephants, goldfish, and people are all animals, too."; //參考圖片寫282字, 表示跳行為Windows的\r\n
+String textQ=text1; //text of Question: text1 of text2 解決 text1 及 text2 切換的問題
 PFont font1, font2, font3;
 float scaleX=1, scaleY=1;//可針對不同解析度螢幕來縮放。 下一行則推算box的寬高、位置、字型大小
 int boxW=930, boxH=300, boxX=(1024-boxW)/2, boxY=20, textH=32; //文字框寬高,畫面以1024x768為基準
@@ -33,7 +34,7 @@ void draw(){
   fill(0);
   textFont(font1);
   textLeading(textH*1.25); //行距 1.25 倍行高
-  text(text1, boxX+3, boxY);         //上方題目區
+  text(textQ, boxX+3, boxY);         //上方題目區
   text(input, boxX+3, boxY+boxH+20); //下方打字區
   drawRedCharacter();   //上方題目區的對應位置,放紅底線+紅字母
   drawInsertionPoint(); //下方打字區的游標插入直線 | 
@@ -57,11 +58,11 @@ void drawElapsedTime(){
   textLeading(textH*1.25); //行距 1.25 倍行高
   text(nf(sss,2), boxX+150, 720);
 }
-//TODO: 之後要解決 text1 及 text2 切換的問題
 void drawRedCharacter(){ //模仿 drawInsertionPoint() 去計算 lineN 及 x座標
   int N=input.length();
-  char c=text1.charAt(N);
-  String substr=text1.substring(0,N+1);
+  if(N>=textQ.length()) return; //如果打到最後一個字會當掉, 因為找不到 textQ.charAt(N), 所以避開
+  char c=textQ.charAt(N);
+  String substr=textQ.substring(0,N+1);
   int lineN=0, now=0;
   while( substr.indexOf("\r\n", now) != -1 ){
     lineN++;
