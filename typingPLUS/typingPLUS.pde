@@ -1,4 +1,4 @@
-//參考 https://www.facebook.com/HSUEHFU.MPM/posts/2156578184397265/ 照片中的PLUS普拉斯打字的畫面來模仿
+//參考 https://www.facebook.com/HSUEHFU.MPM/posts/2156578184397265/ 模仿照片中PLUS普拉斯打字系統的畫面
 String text1="     Crazy Dog was eating a hamburger.  Funny Cat took his hamburger\r\n"
            + "away.  Crazy Dog ran after Funny Cat.  Funny Cat jumped up to the top\r\n"
            + "of a bookshelf.  Crazy Dog couldn't catch Funny Cat.  Funny Cat\r\n"
@@ -8,8 +8,8 @@ String text2="     Animals live in every part of the earth.  They live in the ai
            + "cow, a bird, a fish, a sheep, and a snake are all animals.  Butterflies,\r\n"
            + "eagles, elephants, goldfish, and people are all animals, too."; //參考圖片寫282字, 表示跳行為Windows的\r\n
 PFont font1, font2;
+float scaleX=1, scaleY=1;//可針對不同解析度螢幕來縮放。 下一行則推算box的寬高、位置、字型大小
 int boxW=930, boxH=300, boxX=(1024-boxW)/2, boxY=20, textH=32; //文字框寬高,畫面以1024x768為基準
-float scaleX=1, scaleY=1;//可針對不同解析度螢幕來縮放 推算出 box的寬高、位置、字型大小
 color bgColor=#069581; //背景藍綠色
 void setup(){
   fullScreen(); //size(1024,768);
@@ -31,19 +31,33 @@ void draw(){
   fill(0);
   text(text1, boxX+3, boxY);         //上方題目區
   text(input, boxX+3, boxY+boxH+20); //下方打字區
-  drawInsertionPoint();//下方打字區的游標插入直線 | 
+  drawRedCharacter();   //上方題目區的對應位置,放紅底線+紅字母
+  drawInsertionPoint(); //下方打字區的游標插入直線 | 
 }
-void drawInsertionPoint(){//下方打字區的游標插入直線 | 
-  // textWidth() 是全部文字的寬度, 遇到跳行就不行了。所以要找出已經打了幾行
+//TODO: 之後要解決 text1 及 text2 切換的問題
+void drawRedCharacter(){ //模仿 drawInsertionPoint() 去計算 lineN 及 x座標
+  int N=input.length();
+  char c=text1.charAt(N);
+  String substr=text1.substring(0,N+1);
   int lineN=0, now=0;
+  while( substr.indexOf("\r\n", now) != -1 ){
+    lineN++;
+    now=substr.indexOf("\r\n", now) + 2;
+  }
+  float x=boxX+3+textWidth(substr.substring(now))-textWidth(c); //要減掉 c 的字母寬
+  fill(255,0,0);
+  text(c, x, boxY+lineN*textH*1.25);  
+  text("_", x, boxY+lineN*textH*1.25); //TODO: 這裡的 _ 寬度不漂亮, 應該用 line() 畫
+}
+void drawInsertionPoint(){//下方打字區的游標(Insertion Point)插入直線 | 
+  // textWidth() 是全部文字的寬度, 遇到跳行就不適合了。所以要查出已有幾行(lineN)
+  int lineN=0, now=0; //最後計算出 lineN 及 x座標
   while( input.indexOf("\r\n", now) != -1 ){ //還找得到跳行的話
     lineN++;
-    now=input.indexOf("\r\n", now) +2;
+    now=input.indexOf("\r\n", now) + 2;
   }
   float x=boxX+3+textWidth(input.substring(now));
-  //line(boxX+3+textWidth(input), boxY+boxH+20, boxX+3+textWidth(input), boxY+boxH+20+textH*1.3);  
   line(x, boxY+boxH+20+lineN*textH*1.25, x, boxY+boxH+20+lineN*textH*1.25+textH*1.25);
-  println(lineN, x, input);
 }
 String input=""; //TODO: 重新開始時, 需將 input="" 清空
 void keyPressed(){
