@@ -20,7 +20,7 @@ void setup(){
   textFont(font1);
   textLeading(textH*1.25); //行距 1.25 倍行高
   textAlign(LEFT, TOP); //對齊左上角,讓 text() 座標簡化
-}
+} 
 void draw(){
   background(bgColor);
   scale(scaleX,scaleY); //原本程式解析度是1024x768, 縮放到全螢幕
@@ -30,6 +30,19 @@ void draw(){
   fill(0);
   text(text1, boxX+3, boxY);         //上方題目區
   text(input, boxX+3, boxY+boxH+20); //下方打字區
+  drawInsertionPoint();//下方打字區的游標插入直線 | 
+}
+void drawInsertionPoint(){//下方打字區的游標插入直線 | 
+  // 有個問題: textWidth() 是全部文字的寬度, 遇到跳行就不行了。所以要找出已經打了幾行
+  int lineN=0, now=0;
+  while( input.indexOf("\r\n", now) != -1 ){ //還找得到跳行的話
+    lineN++;
+    now=input.indexOf("\r\n", now) +2;
+  }
+  float x=boxX+3+textWidth(input.substring(now));
+  //line(boxX+3+textWidth(input), boxY+boxH+20, boxX+3+textWidth(input), boxY+boxH+20+textH*1.3);  
+  line(x, boxY+boxH+20+lineN*textH*1.25, x, boxY+boxH+20+lineN*textH*1.25+textH*1.25);
+  println(lineN, x, input);
 }
 String input=""; //TODO: 重新開始時, 需將 input="" 清空
 void keyPressed(){
