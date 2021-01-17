@@ -7,7 +7,7 @@ String text2="     Animals live in every part of the earth.  They live in the ai
            + "water, and on the land.  They can move from one place to another.  A\r\n"
            + "cow, a bird, a fish, a sheep, and a snake are all animals.  Butterflies,\r\n"
            + "eagles, elephants, goldfish, and people are all animals, too."; //參考圖片寫282字, 表示跳行為Windows的\r\n
-PFont font1, font2;
+PFont font1, font2, font3;
 float scaleX=1, scaleY=1;//可針對不同解析度螢幕來縮放。 下一行則推算box的寬高、位置、字型大小
 int boxW=930, boxH=300, boxX=(1024-boxW)/2, boxY=20, textH=32; //文字框寬高,畫面以1024x768為基準
 color bgColor=#069581; //背景藍綠色
@@ -17,6 +17,7 @@ void setup(){
   scaleY=height/768.0;
   font1=createFont("Times New Roman", textH); //打字區的字型
   font2=createFont("標楷體", textH); //左下方中文成績要使用
+  font3=createFont("Arial", textH*1.5);
   textFont(font1);
   textLeading(textH*1.25); //行距 1.25 倍行高
   textAlign(LEFT, TOP); //對齊左上角,讓 text() 座標簡化
@@ -26,13 +27,35 @@ void draw(){
   background(bgColor);
   scale(scaleX,scaleY); //原本程式解析度是1024x768, 縮放到全螢幕
   fill(255);
+  stroke(0);
   rect(boxX, boxY,         boxW, boxH); //上方題目框
   rect(boxX, boxY+boxH+10, boxW, boxH); //下方打字框
   fill(0);
+  textFont(font1);
+  textLeading(textH*1.25); //行距 1.25 倍行高
   text(text1, boxX+3, boxY);         //上方題目區
   text(input, boxX+3, boxY+boxH+20); //下方打字區
   drawRedCharacter();   //上方題目區的對應位置,放紅底線+紅字母
   drawInsertionPoint(); //下方打字區的游標插入直線 | 
+  drawElapsedTime();
+}
+void drawElapsedTime(){
+  noStroke();
+  fill(148);
+  ellipse( 140, 720, 360, 60);
+  fill(#2EF0E1);
+  float a=51;
+  arc( 140, 720, 300, 50, radians(a), radians(180-a), CHORD);
+  arc( 140, 720, 300, 50, radians(a+180), radians(180-a+180), CHORD);
+  rect(boxX, 720-20, 185, 40);
+  fill(0);
+  textFont(font3);
+  int sec=(millis()/1000);
+  int mm=int(sec/60), ss=int(sec%60), sss=int(millis()/10)%100;
+  text(nf(mm,2)+":"+nf(ss,2), boxX+20, 720-30);
+  textSize(18);//每次 textSize()之後, 會 textLeading(48), 所以下一行要再一次 textLeading
+  textLeading(textH*1.25); //行距 1.25 倍行高
+  text(nf(sss,2), boxX+150, 720);
 }
 //TODO: 之後要解決 text1 及 text2 切換的問題
 void drawRedCharacter(){ //模仿 drawInsertionPoint() 去計算 lineN 及 x座標
