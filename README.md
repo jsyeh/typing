@@ -11,5 +11,10 @@ PLUS-style打字遊戲
 -----------------
 因為我兒子非常著迷補習班(PLUS普拉斯)的打字遊戲。所以我就在他生日的這天, 模仿補習班的打字介面, 寫了一個程式試看看, 讓我兒子可以每天在家練習打字。
 
-Keyboard Ninja 打字遊戲
-----------------------
+
+TODO: 更多打字遊戲
+-----------------
+- TODO: Keyboard Ninja
+- TODO: Racing Car
+- TODO: 我兒子寫的黑色單字複習
+- TODO: TTOTD (The Typing of The Death)
