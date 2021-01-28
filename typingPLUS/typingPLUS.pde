@@ -12,6 +12,9 @@ PFont font1, font2, font3;
 float scaleX=1, scaleY=1;//可針對不同解析度螢幕來縮放。 下一行則推算box的寬高、位置、字型大小
 int boxW=930, boxH=300, boxX=(1024-boxW)/2, boxY=20, textH=32; //文字框寬高,畫面以1024x768為基準
 color bgColor=#069581; //背景藍綠色
+int millis0=0, millisStop=0;
+int exitDoorX=900, exitDoorY=668, exitDoorW=100, exitDoorH=50;
+boolean bStop=true;
 void setup(){
   fullScreen(); //size(1024,768);
   scaleX=width/1024.0; //原本程式解析度是1024x768, 縮放到全螢幕
@@ -24,11 +27,31 @@ void setup(){
   textAlign(LEFT, TOP); //對齊左上角,讓 text() 座標簡化
   ((java.awt.Canvas) surface.getNative()).requestFocus(); //解決 fullScreen() focus 的問題, 才能打字
 } //參考 https://discourse.processing.org/t/sketch-does-not-always-have-focus-on-start-up/16834/5
+void countDown321(){
+  background(0);
+  if(millisCountDown==0) millisCountDown=millis();
+  int now = 3-int((millis()-millisCountDown)/1000);
+  if(now==0){
+    millis0=millis();
+    bStop=false;
+  }
+  textSize(300);
+  stroke(0); fill(bgColor);
+  rect((width-300)/2, (height-300)/2, 300,300);
+  fill(255); noStroke();
+  text(now, (width-textWidth(""+now))/2, (height-300)/2);
+}
+int millisCountDown=0;
 void draw(){
+  if(millis0==0){
+    countDown321();
+    return;
+  }
   background(bgColor);
   scale(scaleX,scaleY); //原本程式解析度是1024x768, 縮放到全螢幕
   fill(255);
   stroke(0);
+  rect(exitDoorX, exitDoorY, exitDoorW, exitDoorH); //離開的門
   rect(boxX, boxY,         boxW, boxH); //上方題目框
   rect(boxX, boxY+boxH+10, boxW, boxH); //下方打字框
   fill(0);
@@ -51,8 +74,10 @@ void drawElapsedTime(){
   rect(boxX, 720-20, 185, 40);
   fill(0);
   textFont(font3);
-  int sec=(millis()/1000);
-  int mm=int(sec/60), ss=int(sec%60), sss=int(millis()/10)%100;
+  int sec=(millis()-millis0)/1000;
+  if(millisStop!=0) sec=(millisStop-millis0)/1000;
+  int mm=int(sec/60), ss=int(sec%60), sss=int((millis()-millis0)/10)%100;
+  if(millisStop!=0) sss=int((millisStop-millis0)/10)%100;
   text(nf(mm,2)+":"+nf(ss,2), boxX+20, 720-30);
   textSize(18);//每次 textSize()之後, 會 textLeading(48), 所以下一行要再一次 textLeading
   textLeading(textH*1.25); //行距 1.25 倍行高
@@ -85,22 +110,38 @@ void drawInsertionPoint(){//下方打字區的游標(Insertion Point)插入直�
 }
 String input=""; //TODO: 重新開始時, 需將 input="" 清空
 void keyPressed(){
-  if(key==BACKSPACE){ //按下 BackSpace 倒退鍵
+  if(key==ESC){ //按下 ESC 鍵, 進行算分
+    key = 0; // 但 ESC 也表示結束程式, 所以要把 key 改掉, 避免結束
+    if(millisStop==0){ //First ESC to stop
+      millisStop=millis();
+      bStop=true;
+    }else{ //Second ESC to reset
+      millis0=0;
+      millisStop=0;
+      millisCountDown=0;
+      input="";
+    }
+    //https://forum.processing.org/one/topic/ignore-escape-key-do-other-action.html
+    //TODO: 算分 calculate the score!
+  }else if(key==BACKSPACE && !bStop){ //按下 BackSpace 倒退鍵
     if(input.length()>0){ //如果有字可倒退, 就倒退1字元
       input = input.substring(0, input.length()-1); 
     }
-  }else if(key==TAB){ //按下 TAB 鍵
+  }else if(key==TAB && !bStop){ //按下 TAB 鍵
     input += "     "; //普拉斯系統的 TAB 鍵代表5個空格
-  }else if(key==ENTER){ //按下 Enter 鍵, 表示跳行
+  }else if(key==ENTER && !bStop){ //按下 Enter 鍵, 表示跳行
     input += "\r\n"; //跳行, 可配合 text() 的\n功能, 配合 textLeading() 行距顯示
-  }else if(key==ESC){ //按下 ESC 鍵, 進行算分
-    //key = 0; // 但 ESC 也表示結束程式, 所以要把 key 改掉, 避免結束
-    //https://forum.processing.org/one/topic/ignore-escape-key-do-other-action.html
-    //TODO: 算分 calculate the score!
   }else if(key==CODED){ //按下特殊鍵, 如 SHIFT, CTRL, ALT 等
     //Do nothing, 不記錄CODED特殊鍵
   }else{ //如果按下 普通字母/符號按鍵, 記錄下來
-    input += key; //記錄下來
+    if(!bStop) input += key; //記錄下來
+  }
+}
+void mousePressed(){
+  println(mouseX, mouseY);
+  if(exitDoorX<mouseX/scaleX && mouseX/scaleX<exitDoorX+exitDoorW 
+    && exitDoorY<mouseY/scaleY && mouseY/scaleY<exitDoorY+exitDoorH ){
+      exit();
   }
 }
 //關於螢幕的長寬 4:3 vs. 16:9 我猜是用 stretch 直接拉伸。可用 scale(scaleX,scaleY) 做到
@@ -144,3 +185,4 @@ void keyPressed(){
   //for(int i=0; i<lineN; i++){
   //  text(text1.substring(len[i], len[i+1]), boxX, boxY+i*textH+textH);
   //}
+ 
